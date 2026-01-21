@@ -1,0 +1,193 @@
+{
+  "name": "Embadings store in pinecone",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2240be37-cce4-4b57-b21a-1d0845d2724c",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "query": "menu_pdf(1)"
+      },
+      "type": "n8n-nodes-base.microsoftOneDrive",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4c0c553a-41d9-4fd8-aebf-bef6edcf58ab",
+      "name": "Search a file",
+      "credentials": {
+        "microsoftOneDriveOAuth2Api": {
+          "id": "vyU0S0KcBaK9lnLc",
+          "name": "Microsoft Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": "={{ $json.id }}"
+      },
+      "type": "n8n-nodes-base.microsoftOneDrive",
+      "typeVersion": 1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "cd196599-dc1c-4471-a291-3a4422d91e39",
+      "name": "Download a file",
+      "credentials": {
+        "microsoftOneDriveOAuth2Api": {
+          "id": "vyU0S0KcBaK9lnLc",
+          "name": "Microsoft Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "resturentagent",
+          "mode": "list",
+          "cachedResultName": "resturentagent"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        624,
+        0
+      ],
+      "id": "76fdb276-465b-46bf-83b1-ac4306e02a66",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "av35LmzFDnneXEt6",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        528,
+        176
+      ],
+      "id": "b7829acf-6853-4237-a836-1153a7c0673a",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "PZq3u8hm13h1LzcQ",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "file_name",
+                "value": "={{ $json.name }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        768,
+        208
+      ],
+      "id": "8d44defa-2a01-4125-b0fe-d9f6e020cc9d",
+      "name": "Default Data Loader"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Search a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search a file": {
+      "main": [
+        [
+          {
+            "node": "Download a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download a file": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "0b871b4f-4f34-43f1-a3cd-3534c3ede041",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5b52797836b0434af260606184bf63748dc7d276a5356204c86fd0a3454f5c3a"
+  },
+  "id": "8xgohA2OaLI7iC89",
+  "tags": []
+}
